@@ -215,43 +215,67 @@
     </div>
 </div>
 @endsection
-
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    // Edit Modal Handler
     const editModal = document.getElementById('editModal');
-    editModal.addEventListener('show.bs.modal', function (event) {
-        // Tombol yang memicu modal
-        const button = event.relatedTarget;
-        
-        // Ambil data dari atribut data-*
-        const id = button.getAttribute('data-id');
-        const amount = button.getAttribute('data-amount');
-        const categoryId = button.getAttribute('data-category_id');
-        const description = button.getAttribute('data-description');
-        const transactionDate = button.getAttribute('data-transaction_date');
-        
-        // Update action form
-        const form = document.getElementById('editForm');
-        form.action = '/transactions/' + id;
-        
-        // Update field di dalam modal
-        form.querySelector('#edit_amount').value = amount;
-        form.querySelector('#edit_category_id').value = categoryId;
-        form.querySelector('#edit_description').value = description;
-        form.querySelector('#edit_transaction_date').value = transactionDate;
-    });
+    if (editModal) {
+        editModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            if (!button) return;
 
-    // Jika ada error validasi, buka kembali modal yang sesuai
+            // Get data attributes
+            const id = button.getAttribute('data-id');
+            const amount = button.getAttribute('data-amount');
+            const categoryId = button.getAttribute('data-category_id');
+            const description = button.getAttribute('data-description');
+            const transactionDate = button.getAttribute('data-transaction_date');
+            
+            // Update form
+            const form = document.getElementById('editForm');
+            if (form) {
+                form.action = `/transactions/${id}`;
+                
+                // Add hidden input for edit form identification
+                let hiddenInput = form.querySelector('input[name="is_edit_form"]');
+                if (!hiddenInput) {
+                    hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'is_edit_form';
+                    hiddenInput.value = '1';
+                    form.appendChild(hiddenInput);
+                }
+
+                // Update form fields
+                form.querySelector('#edit_amount').value = amount;
+                form.querySelector('#edit_category_id').value = categoryId;
+                form.querySelector('#edit_description').value = description;
+                form.querySelector('#edit_transaction_date').value = transactionDate;
+            }
+        });
+    }
+
+    // Validation Error Handler
     @if ($errors->any())
-        var myModal;
-        @if (old('is_edit_form')) // Kita perlu menambahkan input hidden untuk menandai form edit
-            myModal = new bootstrap.Modal(document.getElementById('editModal'), {});
-        @else
-            myModal = new bootstrap.Modal(document.getElementById('createModal'), {});
-        @endif
-        myModal.show();
+        try {
+            const modalId = '{{ old("is_edit_form") ? "editModal" : "createModal" }}';
+            const modal = new bootstrap.Modal(document.getElementById(modalId));
+            modal.show();
+        } catch (e) {
+            console.error('Error showing modal:', e);
+        }
     @endif
+
+    // Delete Confirmation
+    const deleteButtons = document.querySelectorAll('.delete-btn');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            if (!confirm('Apakah Anda yakin ingin menghapus transaksi ini?')) {
+                e.preventDefault();
+            }
+        });
+    });
 });
 </script>
 @endpush
