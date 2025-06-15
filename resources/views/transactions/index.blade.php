@@ -1,6 +1,8 @@
 @extends('layouts.app')
-
+@section('title', 'Dashboard')
 @section('content')
+
+{{-- Menampilkan notifikasi error --}}
 
 {{-- Menampilkan notifikasi sukses --}}
 @if(session('success'))
@@ -78,9 +80,9 @@
                         <td>{{ \Carbon\Carbon::parse($transaction->transaction_date)->format('d M Y') }}</td>
                         <td>{{ $transaction->description }}</td>
                         <td>
-                           <span class="badge {{ $transaction->category->type == 'pemasukan' ? 'bg-success-subtle text-success-emphasis' : 'bg-danger-subtle text-danger-emphasis' }}">
+                            <span class="badge {{ $transaction->category->type == 'pemasukan' ? 'bg-success-subtle text-success-emphasis' : 'bg-danger-subtle text-danger-emphasis' }}">
                                 {{ $transaction->category->name }}
-                           </span>
+                            </span>
                         </td>
                         <td class="text-end fw-bold {{ $transaction->category->type == 'pemasukan' ? 'text-success' : 'text-danger' }}">
                             {{ $transaction->category->type == 'pemasukan' ? '+' : '-' }} Rp {{ number_format($transaction->amount, 0, ',', '.') }}

@@ -1,60 +1,43 @@
-{{-- File: resources/views/layouts/app.blade.php --}}
 <!doctype html>
 <html lang="id">
 <head>
-    <meta charset="utf-g">
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>UangKu - Manajemen Keuangan</title>
-    
-    <!-- Bootstrap CSS -->
+    <title>UangKu - @yield('title', 'Manajemen Keuangan')</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Google Fonts: Poppins -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Custom CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f8f9fa;
-        }
-        .navbar {
-            box-shadow: 0 2px 4px rgba(0,0,0,.1);
-        }
-        .card {
-            border: none;
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,.1);
-        }
-        .card-header {
-            border-radius: 0.75rem 0.75rem 0 0 !important;
-        }
-        .btn-primary {
-            background-color: #0d6efd;
-            border-color: #0d6efd;
-        }
-        .table-hover tbody tr:hover {
-            background-color: #f1f1f1;
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background-color: #f8f9fa; 
+        } 
+        .card { 
+            border: none; 
+            border-radius: 0.75rem; 
+            box-shadow: 0 4px 6px rgba(0,0,0,.05); 
         }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="{{ route('home') }}">UangKu</a>
+            <a class="navbar-brand fw-bold" href="{{ auth()->check() ? route('transactions.index') : route('welcome') }}">UangKu</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    @auth
+                        <li class="nav-item"><span class="navbar-text me-3">Halo, {{ Auth::user()->name }}</span></li>
+                        <li class="nav-item"><form method="POST" action="{{ route('logout') }}"> @csrf <button type="submit" class="btn btn-outline-danger btn-sm">Logout</button></form></li>
+                    @else
+                        <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Login</a></li>
+                        <li class="nav-item"><a class="btn btn-primary btn-sm ms-2" href="{{ route('register') }}">Register</a></li>
+                    @endauth
+                </ul>
+            </div>
         </div>
     </nav>
-
-    <main class="container py-5">
-        @yield('content')
-    </main>
-
-    <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Custom JS untuk modal edit -->
+    <main class="container py-4">@yield('content')</main>
+    <script src="[https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js](https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js)"></script>
     @stack('scripts')
 </body>
 </html>

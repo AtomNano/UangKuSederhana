@@ -1,12 +1,15 @@
 <?php
-
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\LoginController;
 
-// Mengarahkan halaman utama langsung ke daftar transaksi
-Route::get('/', [TransactionController::class, 'index'])->name('home');
+Route::get('/', function () { return view('welcome'); })->middleware('guest')->name('welcome');
 
-// Menggunakan resource controller untuk menangani semua aksi CRUD
-// Ini akan secara otomatis membuat rute untuk index, create, store, show, edit, update, destroy
-Route::resource('transactions', TransactionController::class);
+Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register')->middleware('guest');
+Route::post('register', [RegisterController::class, 'register']);
+Route::get('login', [LoginController::class, 'showLoginForm'])->name('login')->middleware('guest');
+Route::post('login', [LoginController::class, 'login']);
+Route::post('logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
 
+Route::resource('transactions', TransactionController::class)->middleware('auth')->except(['show', 'create', 'edit']);
