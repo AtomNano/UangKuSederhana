@@ -13,4 +13,15 @@ class User extends Authenticatable
     protected $casts = ['password' => 'hashed'];
 
     public function transactions() { return $this->hasMany(Transaction::class); }
+
+    public function salaries() {
+    return $this->hasMany(Salary::class);
 }
+public function savings() {
+    return $this->hasMany(Saving::class);
+}
+public function budgets() {
+    return $this->hasMany(Budget::class);
+}
+}
+
