@@ -8,20 +8,13 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
+    
     protected $fillable = ['name', 'email', 'password'];
     protected $hidden = ['password', 'remember_token'];
     protected $casts = ['password' => 'hashed'];
 
-    public function transactions() { return $this->hasMany(Transaction::class); }
-
-    public function salaries() {
-    return $this->hasMany(Salary::class);
+    // Hanya perlu relasi transactions
+    public function transactions() { 
+        return $this->hasMany(Transaction::class); 
+    }
 }
-public function savings() {
-    return $this->hasMany(Saving::class);
-}
-public function budgets() {
-    return $this->hasMany(Budget::class);
-}
-}
-

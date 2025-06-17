@@ -23,12 +23,6 @@ Route::middleware('auth')->group(function () {
     // Existing routes
     Route::post('logout', [LoginController::class, 'logout'])->name('logout');
     Route::resource('transactions', TransactionController::class)->except(['show', 'create', 'edit']);
-    
-    // Dashboard route
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    
-    // Salary & Budget routes
-    Route::resource('salaries', SalaryController::class)->only(['index', 'create', 'store']);
-    Route::resource('budgets', BudgetController::class)->only(['index', 'create', 'store']);
 });
 

@@ -3,48 +3,77 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
-use App\Models\Salary;
-use App\Models\Saving;
-use App\Models\Budget;
 use App\Models\Transaction;
+use App\Models\Category;
 
 class DashboardController extends Controller
 {
     public function index()
-{
-    $user = Auth::user();
+    {
+        $user = Auth::user();
+        
+        // Get latest salary and calculate savings
+        $latestSalary = Transaction::where('user_id', $user->id)
+            ->whereHas('category', function($q) {
+                $q->where('name', 'Gaji');
+            })
+            ->latest()
+            ->first();
 
-    // Get user-specific data
-    $salary = Salary::where('user_id', $user->id)->latest()->first();
-    $saving = Saving::where('user_id', $user->id)->sum('amount');
-    $budgets = Budget::where('user_id', $user->id)->get();
-    $transactions = Transaction::where('user_id', $user->id)
-        ->with('category')
-        ->latest('transaction_date')
-        ->get();
+        $salary = $latestSalary ? $latestSalary->amount : 0;
+        $saving = $salary * 0.1;
+        $cadangan = $salary * 12;
 
-    // Chart data
-    $chartData = [
-        'labels' => $budgets->pluck('category')->map(function($cat) {
-            return ucfirst(str_replace('_', ' ', $cat));
-        }),
-        'datasets' => [[
-            'label' => 'Anggaran',
-            'data' => $budgets->pluck('amount'),
-            'backgroundColor' => ['#0d6efd', '#198754', '#ffc107'],
-        ]]
-    ];
+        // Calculate total balance (income - expenses)
+        $totalIncome = Transaction::where('user_id', $user->id)
+            ->whereHas('category', function($q) {
+                $q->where('type', 'pemasukan');
+            })
+            ->sum('amount');
 
-    // Yearly savings calculation
-    $cadangan = $salary ? $salary->amount * 12 : 0;
+        $totalExpense = Transaction::where('user_id', $user->id)
+            ->whereHas('category', function($q) {
+                $q->where('type', 'pengeluaran');
+            })
+            ->sum('amount');
 
-    return view('dashboard', compact(
-        'salary', 
-        'saving', 
-        'budgets', 
-        'chartData', 
-        'cadangan',
-        'transactions'
-    ));
-}
+        $balance = $totalIncome - $totalExpense;
+        $availableBalance = $balance - $saving; // Balance after savings
+
+        // Get budget categories and their transactions
+        $budgetCategories = ['Biaya Sekolah', 'Cicilan', 'Sewa/KPR'];
+        $budgets = Transaction::where('user_id', $user->id)
+            ->whereHas('category', function($q) use ($budgetCategories) {
+                $q->whereIn('name', $budgetCategories);
+            })
+            ->with('category')
+            ->get()
+            ->groupBy('category.name');
+
+        // Prepare chart data
+        $chartLabels = $budgetCategories;
+        $chartData = collect($budgetCategories)->map(function($category) use ($budgets) {
+            return $budgets->get($category, collect())->sum('amount');
+        });
+
+        $chartConfig = [
+            'labels' => $chartLabels,
+            'datasets' => [[
+                'label' => 'Anggaran',
+                'data' => $chartData,
+                'backgroundColor' => ['#0d6efd', '#198754', '#ffc107'],
+            ]]
+        ];
+
+        return view('dashboard', compact(
+            'latestSalary',
+            'saving',
+            'cadangan',
+            'balance',
+            'availableBalance',
+            'budgets',
+            'chartConfig',
+            'budgetCategories'
+        ));
+    }
 }

@@ -8,4 +8,10 @@ class Category extends Model
 {
     use HasFactory;
     protected $guarded = ['id'];
+
+    // Tambahkan relasi ke transactions
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
 }

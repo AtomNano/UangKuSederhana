@@ -10,9 +10,14 @@ class Transaction extends Model
     use HasFactory;
     protected $guarded = ['id'];
 
-    // Relasi ke model Category
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    // Tambahkan relasi ke user
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }
