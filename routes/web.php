@@ -20,13 +20,15 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    // Existing routes
     Route::post('logout', [LoginController::class, 'logout'])->name('logout');
     Route::resource('transactions', TransactionController::class)->except(['show', 'create', 'edit']);
-    // Ganti '/' menjadi '/dashboard' agar tidak bentrok dengan guest
-    Route::get('/dashboard', [TransactionController::class, 'index'])->name('dashboard');
+    
+    // Dashboard route
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
+    // Salary & Budget routes
     Route::resource('salaries', SalaryController::class)->only(['index', 'create', 'store']);
     Route::resource('budgets', BudgetController::class)->only(['index', 'create', 'store']);
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
 });
 

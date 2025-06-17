@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Budget;
+use App\Models\Salary;
 use Illuminate\Support\Facades\Auth;
 
 class BudgetController extends Controller
@@ -11,7 +12,9 @@ class BudgetController extends Controller
     public function index()
     {
         $budgets = Budget::where('user_id', Auth::id())->get();
-        return view('budgets.index', compact('budgets'));
+        $latestSalary = Salary::where('user_id', Auth::id())->latest()->first();
+        
+        return view('budgets.index', compact('budgets', 'latestSalary'));
     }
 
     public function create()
