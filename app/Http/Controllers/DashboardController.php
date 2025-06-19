@@ -5,9 +5,17 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Transaction;
 use App\Models\Category;
+use App\Models\Salary;
+use App\Models\Saving;
+use App\Models\Budget;
+
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+
 
 class DashboardController extends Controller
 {
+    use AuthorizesRequests, ValidatesRequests;
     public function index()
     {
         $user = Auth::user();
