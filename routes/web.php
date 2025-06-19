@@ -24,5 +24,7 @@ Route::middleware('auth')->group(function () {
     Route::post('logout', [LoginController::class, 'logout'])->name('logout');
     Route::resource('transactions', TransactionController::class)->except(['show', 'create', 'edit']);
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::resource('budgets', BudgetController::class)->except(['show', 'edit']);
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });
 

@@ -26,6 +26,7 @@ public function run()
         ['name' => 'Transport', 'type' => 'pengeluaran'],
         ['name' => 'Belanja', 'type' => 'pengeluaran'],
         ['name' => 'Lainnya', 'type' => 'pengeluaran'],
+        
     ];
 
     foreach ($categories as $category) {

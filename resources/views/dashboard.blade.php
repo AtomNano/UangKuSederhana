@@ -43,13 +43,15 @@
         </div>
     </div>
 
+     @include('transactions.partials.budget_distribution')
+
     <div class="row">
         <!-- Grafik Anggaran -->
         <div class="col-md-8">
             <div class="card mb-4">
                 <div class="card-header">Distribusi Anggaran</div>
                 <div class="card-body">
-                    <canvas id="budgetChart"></canvas>
+                    <canvas id="budgetChart" style="max-width: 300px; max-height: 300px;"></canvas>
                 </div>
             </div>
         </div>
@@ -94,7 +96,16 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+    window.editBudget = function(category, amount) {
+        const modal = new bootstrap.Modal(document.getElementById('budgetModal'));
+        document.getElementById('budgetModalLabel').textContent = 'Edit Distribusi Anggaran';
+        document.getElementById('budget_category').value = category;
+        document.getElementById('budget_amount').value = amount;
+        modal.show();
+    }
 });
+
+
 </script>
 @endpush
 @endsection

@@ -33,20 +33,26 @@ class TransactionController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'amount' => 'required|numeric|min:0',
-            'category_id' => 'required|exists:categories,id',
-            'description' => 'required|string|max:255',
-            'transaction_date' => 'required|date',
-        ]);
+{
+    $validated = $request->validate([
+        'amount' => 'required|numeric|min:0',
+        'category_id' => 'required|exists:categories,id',
+        'description' => 'required|string|max:255',
+        'transaction_date' => 'required|date',
+    ]);
 
-        $validated['user_id'] = Auth::id();
-        Transaction::create($validated);
-
-        return redirect()->route('transactions.index')
-            ->with('success', 'Transaksi berhasil ditambahkan!');
+    $validated['user_id'] = Auth::id();
+    
+    // If this is a budget transaction, set session flag
+    if ($request->has('is_budget')) {
+        session(['form_type' => 'budget']);
     }
+
+    Transaction::create($validated);
+
+    return redirect()->back()
+        ->with('success', 'Data berhasil disimpan!');
+}
 
     public function update(Request $request, Transaction $transaction)
     {

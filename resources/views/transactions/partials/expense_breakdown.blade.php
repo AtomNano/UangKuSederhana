@@ -1,46 +1,94 @@
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header bg-white py-3">
-                <h5 class="mb-0">Breakdown Pengeluaran</h5>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Breakdown Pengeluaran</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <canvas id="expenseChart" style="max-width: 300px; max-height: 300px;"></canvas>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    @php
-                        $expenseCategories = $categories->where('type', 'pengeluaran');
-                        $colors = ['primary', 'success', 'warning', 'info', 'danger', 'secondary'];
-                    @endphp
-                    
-                    @forelse($expenseCategories as $index => $category)
-                        @php
-                            $categoryTotal = $transactions->where('category_id', $category->id)->sum('amount');
-                            $percentage = $totalExpense > 0 ? ($categoryTotal / $totalExpense) * 100 : 0;
-                            $color = $colors[$index % count($colors)];
-                        @endphp
-                        
-                        <div class="col-md-6 col-lg-4 mb-3">
-                            <div class="card border-{{ $color }}">
-                                <div class="card-body">
-                                    <h6 class="card-title d-flex justify-content-between">
-                                        <span>{{ $category->name }}</span>
-                                        <span class="badge bg-{{ $color }}">{{ number_format($percentage, 1) }}%</span>
-                                    </h6>
-                                    <p class="card-text fw-bold mb-0">
-                                        Rp {{ number_format($categoryTotal, 0, ',', '.') }}
-                                    </p>
-                                    <div class="progress mt-2" style="height: 5px;">
-                                        <div class="progress-bar bg-{{ $color }}" role="progressbar" style="width: {{ $percentage }}%"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    @empty
-                        <div class="col-12">
-                            <p class="text-muted text-center">Belum ada kategori pengeluaran.</p>
-                        </div>
-                    @endforelse
+            <div class="col-md-6">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Kategori</th>
+                                <th>Jumlah</th>
+                                <th>Persentase</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php
+                                $totalExpense = $transactions->whereIn('category.type', ['pengeluaran'])->sum('amount');
+                                $expensesByCategory = $transactions
+                                    ->whereIn('category.type', ['pengeluaran'])
+                                    ->groupBy('category.name')
+                                    ->map(function ($group) {
+                                        return $group->sum('amount');
+                                    });
+                            @endphp
+                            
+                            @foreach($expensesByCategory as $category => $amount)
+                                <tr>
+                                    <td>{{ $category }}</td>
+                                    <td>Rp {{ number_format($amount, 0, ',', '.') }}</td>
+                                    <td>{{ number_format(($amount / $totalExpense) * 100, 1) }}%</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                        <tfoot>
+                            <tr class="fw-bold">
+                                <td>Total</td>
+                                <td>Rp {{ number_format($totalExpense, 0, ',', '.') }}</td>
+                                <td>100%</td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('expenseChart').getContext('2d');
+    
+    const expenseData = @json($expensesByCategory);
+    const categories = Object.keys(expenseData);
+    const amounts = Object.values(expenseData);
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: categories,
+            datasets: [{
+                data: amounts,
+                backgroundColor: [
+                    '#FF6384',
+                    '#36A2EB',
+                    '#FFCE56',
+                    '#4BC0C0',
+                    '#9966FF',
+                    '#FF9F40'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                title: {
+                    display: true,
+                    text: 'Distribusi Pengeluaran per Kategori'
+                }
+            }
+        }
+    });
+});
+</script>
+@endpush
