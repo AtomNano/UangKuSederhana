@@ -64,9 +64,9 @@
                     <ul class="list-group list-group-flush">
                     @foreach($budgetCategories as $category)
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            {{ $category }}
+                            {{ $category->name }}
                             <span class="badge bg-primary rounded-pill">
-                                Rp {{ number_format($budgets->get($category, collect())->sum('amount'),0,',','.') }}
+                                Rp {{ number_format($budgets->get($category->name, collect())->sum('amount'),0,',','.') }}
                             </span>
                         </li>
                     @endforeach

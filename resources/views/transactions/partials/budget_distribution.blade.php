@@ -77,10 +77,8 @@
                         <select class="form-select" name="category_id" required>
                             <option value="">Pilih Kategori...</option>
                             @foreach($budgetCategories as $category)
-    <li>
-        {{ $category->name }}: Rp {{ number_format($budgets->get($category->name, collect())->sum('amount'),0,',','.') }}
-    </li>
-@endforeach
+                                <option value="{{ $category->id }}">{{ $category->name }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <div class="mb-3">

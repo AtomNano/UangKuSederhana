@@ -56,9 +56,9 @@ class DashboardController extends Controller
             ->groupBy('category.name');
 
         // Chart configuration
-        $chartLabels = $budgetCategories->pluck('name');
-        $chartData = $chartLabels->map(function($category) use ($budgets) {
-            return $budgets->get($category, collect())->sum('amount');
+        $chartLabels = $budgetCategories->pluck('name')->toArray();
+        $chartData = collect($chartLabels)->map(function($categoryName) use ($budgets) {
+            return $budgets->get($categoryName, collect())->sum('amount');
         });
 
         $chartConfig = [
