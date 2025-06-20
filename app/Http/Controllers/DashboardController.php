@@ -40,19 +40,24 @@ class DashboardController extends Controller
         $balance = $totalIncome - $totalExpense;
         $availableBalance = $balance - $saving; // Balance after savings
 
-        // Get budget categories and their transactions
-        $budgetCategories = ['Biaya Sekolah', 'Cicilan', 'Sewa/KPR'];
+        $budgetCategories = Category::whereIn('name', [
+            'Biaya Sekolah', 
+            'Cicilan', 
+            'Sewa/KPR'
+        ])->get();
+
+        // Get transactions for these categories
         $budgets = Transaction::where('user_id', $user->id)
             ->whereHas('category', function($q) use ($budgetCategories) {
-                $q->whereIn('name', $budgetCategories);
+                $q->whereIn('name', ['Biaya Sekolah', 'Cicilan', 'Sewa/KPR']);
             })
             ->with('category')
             ->get()
             ->groupBy('category.name');
 
-        // Prepare chart data
-        $chartLabels = $budgetCategories;
-        $chartData = collect($budgetCategories)->map(function($category) use ($budgets) {
+        // Chart configuration
+        $chartLabels = $budgetCategories->pluck('name');
+        $chartData = $chartLabels->map(function($category) use ($budgets) {
             return $budgets->get($category, collect())->sum('amount');
         });
 
@@ -73,7 +78,7 @@ class DashboardController extends Controller
             'availableBalance',
             'budgets',
             'chartConfig',
-            'budgetCategories'
+            'budgetCategories'  // Added this line
         ));
     }
 }
